@@ -13,8 +13,8 @@ pygame.display.set_caption("test")
 clock = pygame.time.Clock()
 
 # image load
-kabosu_img = pygame.image.load("Assets/kabosu_highres.jpg")
-# kabosu_img = pygame.image.load("Assets/monotoneChecker1k.png")
+# kabosu_img = pygame.image.load("Assets/kabosu_highres.jpg")
+kabosu_img = pygame.image.load("Assets/monotoneChecker1k.png")
 kabosu_img = pygame.transform.scale(kabosu_img, (64, 64))
 checkerboard_img = pygame.image.load("Assets/uvChecker1k.png")
 checkerboard_img = pygame.transform.scale(checkerboard_img, (128, 1024))
@@ -28,7 +28,7 @@ player_y_offset = 256
 player_y_vel = 0.0
 terminal_velocity = 100
 gap_range = 256
-gap_height = random.randint(256, 1024 - 256)
+gap_height = random.randint(374, 1024 - 374)
 score = 0
 
 #classes
@@ -45,7 +45,7 @@ class Player:
             self.velocity = terminal_velocity
 
     def jump(self):
-        self.velocity = -14
+        self.velocity = -11 - (score // 7)
 
     def draw(self, surface):
         surface.blit(self.img, self.rect.topleft)
@@ -53,7 +53,7 @@ class Player:
 class Obstacles:
     def __init__(self, rimg, x, y):
         self.img = rimg
-        self.rect = pygame.Rect(x, y, rimg.get_width() * 0.5, rimg.get_height())
+        self.rect = pygame.Rect(x, y, rimg.get_width() * 0.8, rimg.get_height())
         self.velocity = 8
 
     def update(self):
@@ -61,10 +61,10 @@ class Obstacles:
         if self.rect.x < (-1 * screen_width) + 512:
             self.rect.x = screen_width
             global gap_height 
-            gap_height = random.randint(256, 1024 - 256)
+            gap_height = random.randint(374, 1024 - 374)
 
     def draw(self, surface):
-        surface.blit(self.img, self.rect.topleft)
+        surface.blit(self.img, (self.rect.x - self.img.get_width() * 0.1, self.rect.y))
 
     def setHeight(self, height, isAbove):
         if isAbove:
@@ -109,12 +109,16 @@ def in_game():
         obsBelow.setHeight(gap_height, False)
 
         # check if player is dead
-        if pl.rect.y >= screen_height - pl.img.get_height() or pl.rect.y < 0:
+        if pl.rect.y >= screen_height - pl.img.get_height() or pl.rect.y < 0 or pl.rect.colliderect(obsAbove.rect) or pl.rect.colliderect(obsBelow.rect):
             gameOverScreen()
 
         # print(pl.rect.y)
 
-        #draw elements
+        # score player
+        if pl.rect.x == obsAbove.rect.x:
+            score += 1
+
+        # draw elements
         pl.draw(screen)
         obsBelow.draw(screen)
         obsAbove.draw(screen)
