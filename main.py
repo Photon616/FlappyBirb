@@ -11,16 +11,22 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("test")
 
 clock = pygame.time.Clock()
-font = pygame.font.Font("Assets/Fonts/Pretendard-Black.ttf", 256)
+pretendard_black = pygame.font.Font("Assets/Fonts/Pretendard-Black.ttf", 128)
 
 # image load
 # kabosu_img = pygame.image.load("Assets/kabosu_highres.jpg")
 kabosu_img = pygame.image.load("Assets/Textures/monotoneChecker1k.png")
 kabosu_img = pygame.transform.scale(kabosu_img, (64, 64))
+
 checkerboard_img = pygame.image.load("Assets/Textures/uvChecker1k.png")
-checkerboard_img = pygame.transform.scale(checkerboard_img, (128, 1024))
+checkerboard_img = pygame.transform.scale(checkerboard_img, (1024, 1024))
 monoCheck_img = pygame.image.load("Assets/Textures/monotoneChecker1k.png")
-monoCheck_img = pygame.transform.scale(monoCheck_img, (128, 1024))
+monoCheck_img = pygame.transform.scale(monoCheck_img, (1024, 1024))
+
+obstacle_checkerboard_img = pygame.image.load("Assets/Textures/uvChecker1k.png")
+obstacle_checkerboard_img = pygame.transform.scale(obstacle_checkerboard_img, (128, 1024))
+obstacle_monoCheck_img = pygame.image.load("Assets/Textures/monotoneChecker1k.png")
+obstacle_monoCheck_img = pygame.transform.scale(obstacle_monoCheck_img, (128, 1024))
 
 # variables
 player_speed = 5
@@ -46,7 +52,7 @@ class Player:
             self.velocity = terminal_velocity
 
     def jump(self):
-        self.velocity = -11 - (score // 7)
+        self.velocity = -11 - (score // 5)
 
     def draw(self, surface):
         surface.blit(self.img, self.rect.topleft)
@@ -74,13 +80,27 @@ class Obstacles:
             self.rect.y = (height) + (gap_range / 2)
         # self.rect.y = height + ((gap_range / 2) * multiplyer)
 
+class parallax_bg:
+    def __init__(self, rimg, x, y, velFac):
+        self.img = rimg
+        self.rect = pygame.Rect(x, y, rimg.get_width(), rimg.get_height())
+        self.velocity = 8
+        self.factor = velFac
+
+    def update(self):
+        self.rect.x -= self.velocity * self.factor
+        if self.rect.x < -1024:
+            self.rect.x = screen_width
+
+    def draw(self, surface):
+        surface.blit(self.img, self.rect.topleft)
+
 def start_screen():
     running = True
 
     while running:
         if True:
-            in_game()
-            return
+            return "game"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -89,16 +109,23 @@ def start_screen():
     # to be finished
 
 def gameOverScreen():
-    running = True
     # to be finished
-    start_screen()
+    return "start"
 
 def in_game():
     global score
+    global pretendard_black
 
     pl = Player(kabosu_img, 192, 0) # the player
-    obsBelow = Obstacles(checkerboard_img, 1024, 0) # the obstacle coming below
-    obsAbove = Obstacles(monoCheck_img, 1024, 0) # the obstacle coming above
+    obsBelow = Obstacles(obstacle_checkerboard_img, 1024, 0) # the obstacle coming below
+    obsAbove = Obstacles(obstacle_monoCheck_img, 1024, 0) # the obstacle coming above
+
+    bg1_left = parallax_bg(checkerboard_img, 0, 850, 2) # the first layer of parallax background(left)
+    bg1_right = parallax_bg(checkerboard_img, 1024, 850, 2) # the first layer of parallax background(right)
+
+    bg2_left = parallax_bg(checkerboard_img, 0, 700, 1) # the second layer of parallax background(left)
+    bg2_right = parallax_bg(checkerboard_img, 1024, 700, 1) # the second layer of parallax background(right)
+
     score = 0 # reset score
 
     running = True
@@ -115,21 +142,27 @@ def in_game():
 
         # check if player is dead
         if pl.rect.y >= screen_height - pl.img.get_height() or pl.rect.y < 0 or pl.rect.colliderect(obsAbove.rect) or pl.rect.colliderect(obsBelow.rect):
-            gameOverScreen()
+            return "gameover"
 
         # score player
         if pl.rect.x == obsAbove.rect.x:
             score += 1
         
         # show score
-        score_text = font.render(str(score), True, (255, 255, 255))
+        score_text = pretendard_black.render(str(score), True, (255, 255, 255))
         score_text_rect = score_text.get_rect(center=(512, 512))
 
         # draw elements
         # background
         screen.blit(score_text, score_text_rect)
+        
+        bg2_left.draw(screen)
+        bg2_right.draw(screen)
 
-        #other elements
+        bg1_left.draw(screen)
+        bg1_right.draw(screen)
+
+        # other elements
         obsBelow.draw(screen)
         obsAbove.draw(screen)
         pl.draw(screen)
@@ -143,15 +176,38 @@ def in_game():
         
         # update sprites' position and the screen itself
         pl.update()
+
         obsBelow.update()
         obsAbove.update()
+
+        bg1_left.update()
+        bg1_right.update()
+
+        bg2_left.update()
+        bg2_right.update()
+
         pygame.display.update()
 
     pygame.quit()
     return
 
+def main():
+    state = "start"
+    while True:
+        if state == "start":
+            state = start_screen()
+        elif state == "game":
+            state = in_game()
+        elif state == "gameover":
+            state = gameOverScreen()
+        else:
+            break
+
+    pygame.quit()
+    return
+
 #initial start
-start_screen()
+main()
 
 '''
 running = True
