@@ -120,12 +120,6 @@ def in_game():
     obsBelow = Obstacles(obstacle_checkerboard_img, 1024, 0) # the obstacle coming below
     obsAbove = Obstacles(obstacle_monoCheck_img, 1024, 0) # the obstacle coming above
 
-    bg1_left = parallax_bg(checkerboard_img, 0, 850, 2) # the first layer of parallax background(left)
-    bg1_right = parallax_bg(checkerboard_img, 1024, 850, 2) # the first layer of parallax background(right)
-
-    bg2_left = parallax_bg(checkerboard_img, 0, 700, 1) # the second layer of parallax background(left)
-    bg2_right = parallax_bg(checkerboard_img, 1024, 700, 1) # the second layer of parallax background(right)
-
     score = 0 # reset score
 
     running = True
@@ -155,12 +149,6 @@ def in_game():
         # draw elements
         # background
         screen.blit(score_text, score_text_rect)
-        
-        bg2_left.draw(screen)
-        bg2_right.draw(screen)
-
-        bg1_left.draw(screen)
-        bg1_right.draw(screen)
 
         # other elements
         obsBelow.draw(screen)
@@ -179,12 +167,6 @@ def in_game():
 
         obsBelow.update()
         obsAbove.update()
-
-        bg1_left.update()
-        bg1_right.update()
-
-        bg2_left.update()
-        bg2_right.update()
 
         pygame.display.update()
 
