@@ -28,6 +28,8 @@ obstacle_checkerboard_img = pygame.transform.scale(obstacle_checkerboard_img, (6
 obstacle_monoCheck_img = pygame.image.load("Assets/Textures/monotoneChecker1k.png")
 obstacle_monoCheck_img = pygame.transform.scale(obstacle_monoCheck_img, (64, 512))
 
+bg_img = pygame.image.load("Assets/Textures/placeholder_800x600.png")
+
 # variables
 player_speed = 5
 player_x_offset = 200
@@ -85,6 +87,7 @@ class Obstacles:
 
 def start_screen():
     running = True
+    keys = pygame.key.get_pressed()
 
     while running:
         if True:
@@ -139,7 +142,7 @@ def in_game():
 
         # draw elements
         # background
-        # screen.blit(checkerboard_img, (0, 0))
+        screen.blit(bg_img, (0, 0))
         screen.blit(score_text, score_text_rect)
 
         # other elements
