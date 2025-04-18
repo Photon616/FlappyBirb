@@ -4,8 +4,8 @@ from pygame.locals import *
 
 pygame.init()
 
-screen_width = 800
-screen_height = 600
+screen_width = 640
+screen_height = 480
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("test")
@@ -28,7 +28,7 @@ obstacle_checkerboard_img = pygame.transform.scale(obstacle_checkerboard_img, (6
 obstacle_monoCheck_img = pygame.image.load("Assets/Textures/monotoneChecker1k.png")
 obstacle_monoCheck_img = pygame.transform.scale(obstacle_monoCheck_img, (64, 512))
 
-bg_img = pygame.image.load("Assets/Textures/placeholder_800x600.png")
+bg_img = pygame.image.load("Assets/Textures/placeholder_640x480.png")
 
 # variables
 player_speed = 5
@@ -37,7 +37,9 @@ player_y_offset = 0
 player_y_vel = 0.0
 terminal_velocity = 100
 gap_range = 160
-gap_height = random.randint(200, 400)
+gap_max = 340
+gap_min = 140
+gap_height = random.randint(gap_min, gap_max)
 score = 0
 can_score = True
 
@@ -55,7 +57,7 @@ class Player:
             self.velocity = terminal_velocity
 
     def jump(self):
-        self.velocity = -7 - (score // 5)
+        self.velocity = -7 - (score // 10)
 
     def draw(self, surface):
         surface.blit(self.img, self.rect.topleft)
@@ -72,7 +74,7 @@ class Obstacles:
             self.rect.x = screen_width
             global gap_height 
             global can_score
-            gap_height = random.randint(150, 450)
+            gap_height = random.randint(gap_min, gap_max)
             can_score = True
 
     def draw(self, surface):
@@ -138,7 +140,7 @@ def in_game():
         
         # show score
         score_text = pretendard_black.render(str(score), True, (255, 255, 255))
-        score_text_rect = score_text.get_rect(center=(400, 300))
+        score_text_rect = score_text.get_rect(center=(screen_width / 2, screen_height / 2))
 
         # draw elements
         # background
