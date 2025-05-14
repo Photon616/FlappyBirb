@@ -54,7 +54,7 @@ gap_height = random.randint(gap_min, gap_max)
 score = 0
 can_score = True
 
-#classes
+# classes
 class Player:
     def __init__(self, rimg, x, y):
         self.img = rimg
@@ -97,6 +97,8 @@ class Obstacles:
         else:
             self.rect.y = (height) + (gap_range / 2)
         # self.rect.y = height + ((gap_range / 2) * multiplyer)
+
+# functions
 
 def start_screen():
     global pretendard
@@ -261,30 +263,3 @@ pygame.mixer.music.play(-1)  # 반복 재생
 
 #initial start
 main()
-
-'''
-running = True
-while running:
-    screen.fill((0, 0, 0))
-    clock.tick(60)
-    
-    player_rect = pygame.Rect(player_x_offset, player_y_offset, 64, 64)
-
-    # the gravitational accelaration affects the player. the accelaration stops when the velocity reaches the terminal velocity set previously
-    player_y_vel += 0.5
-
-    player_y_offset += player_y_vel
-
-    #BLIT!
-    screen.blit(kabosu_img, (player_x_offset, player_y_offset))
-
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player_y_vel = -14
-        if event.type == pygame.QUIT:
-            running = False
-
-    pygame.display.update()
-
-'''
