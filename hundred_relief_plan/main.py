@@ -18,8 +18,22 @@ clock = pygame.time.Clock()
 
 # classes
 class Player:
-     def __init__(self, rimg, x, y):
-          self.rimg = rimg
+    def __init__(self, rimg, x, y, y_vel_limit, rect_x, rect_y):
+        self.rimg = rimg
+        self.x = x
+        self.y = y
+        self.y_vel = 0
+        self.y_vel_limit = y_vel_limit
+        self.rect = pygame.Rect(x, y, rect_x, rect_y)
+    
+    def update(self, fall_speed):
+        self.y_vel += fall_speed # adds on y coordinate to go down
+
+        if self.y_vel > self.y_vel_limit:
+            self.y_vel = self.y_vel_limit
+
+        self.y += self.y_vel
+    
 
 def start_screen():
     running = True
