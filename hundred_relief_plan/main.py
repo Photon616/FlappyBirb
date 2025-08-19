@@ -9,13 +9,14 @@ pygame.mixer.init()
 scrnW = 640 # the width of the game window(pixels)
 scrnH = 480 # the height of the game window(pixels)
 
-screen = pygame.display.set_mode((scrnW, scrnW))
+screen = pygame.display.set_mode((scrnW, scrnH))
 pygame.display.set_caption("operation")
 
 clock = pygame.time.Clock()
 
 # load images here
-player_img = pygame.image.load("Assets/Textures/uvChecker1k.png")
+# if not loading, try removing hundred_relief_plan in the directory.
+player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 player_img = pygame.transform.scale(player_img, (64, 64))
 
 # classes
@@ -37,14 +38,14 @@ class Player:
         self.y += self.y_vel # adds on y coordinate to go down
     
     def jump(self, jump_speed):
-        self.y_vel = jump_speed
+        self.y_vel = -jump_speed
     
     def draw(self):
         screen.blit(self.rimg, (self.x, self.y))
     
 def start_screen():
     running = True
-
+    in_game()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -52,20 +53,30 @@ def start_screen():
                     return "game"
             if event.type == pygame.QUIT:
                 running = False
+                pygame.quit()
 
 def in_game():
     running = True
-    pl = Player(player_img, 192, 0, 50, 192, 0, 64, 64)
+    pl = Player(player_img, 128, 0, 50, 128, 0, 64, 64)
+    fall_speed = 0.3
+    jump_speed = 8.0
 
     while running:
-        
+        clock.tick(60)
+        screen.fill((0, 0, 0)) # draw background
+
+        pl.update(fall_speed) # update the position of the player
+        pl.draw() # blit rimg on the screen
+
+        pygame.display.update() # update the screen
+
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    # return "game"
-                    ''
+                    pl.jump(jump_speed)
             if event.type == pygame.QUIT:
                 running = False
+                pygame.quit()
 
 def game_over_screen():
     running = True
@@ -77,6 +88,7 @@ def game_over_screen():
                     return "start"
             if event.type == pygame.QUIT:
                 running = False
+                pygame.quit()
 
 def main():
     state = "start"
