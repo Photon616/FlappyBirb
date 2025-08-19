@@ -15,59 +15,68 @@ pygame.display.set_caption("operation")
 clock = pygame.time.Clock()
 
 # load images here
+player_img = pygame.image.load("Assets/Textures/uvChecker1k.png")
+player_img = pygame.transform.scale(player_img, (64, 64))
 
 # classes
 class Player:
-    def __init__(self, rimg, x, y, y_vel_limit, rect_x, rect_y):
+    def __init__(self, rimg, x, y, y_vel_limit, rect_x, rect_y, rect_size_x, rect_size_y):
         self.rimg = rimg
         self.x = x
         self.y = y
         self.y_vel = 0
         self.y_vel_limit = y_vel_limit
-        self.rect = pygame.Rect(x, y, rect_x, rect_y)
+        self.rect = pygame.Rect(rect_x, rect_y, rect_size_x, rect_size_y)
     
     def update(self, fall_speed):
-        self.y_vel += fall_speed # adds on y coordinate to go down
+        self.y_vel += fall_speed 
 
         if self.y_vel > self.y_vel_limit:
             self.y_vel = self.y_vel_limit
 
-        self.y += self.y_vel
+        self.y += self.y_vel # adds on y coordinate to go down
     
-
+    def jump(self, jump_speed):
+        self.y_vel = jump_speed
+    
+    def draw(self):
+        screen.blit(self.rimg, (self.x, self.y))
+    
 def start_screen():
     running = True
 
     while running:
         for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        return "game"
-                if event.type == pygame.QUIT:
-                    running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return "game"
+            if event.type == pygame.QUIT:
+                running = False
 
 def in_game():
     running = True
+    pl = Player(player_img, 192, 0, 50, 192, 0, 64, 64)
 
     while running:
+        
         for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        # return "game"
-                        ''
-                if event.type == pygame.QUIT:
-                    running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    # return "game"
+                    ''
+            if event.type == pygame.QUIT:
+                running = False
 
 def game_over_screen():
     running = True
 
     while running:
         for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        return "start"
-                if event.type == pygame.QUIT:
-                    running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return "start"
+            if event.type == pygame.QUIT:
+                running = False
 
 def main():
     state = "start"
