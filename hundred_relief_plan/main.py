@@ -17,7 +17,7 @@ clock = pygame.time.Clock()
 # load images here
 # if not loading, try removing hundred_relief_plan in the directory.
 player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
-player_img = pygame.transform.scale(player_img, (64, 64))
+player_img = pygame.transform.scale(player_img, (64, 48))
 
 # classes
 class Player:
@@ -36,6 +36,16 @@ class Player:
             self.y_vel = self.y_vel_limit
 
         self.y += self.y_vel # adds on y coordinate to go down
+
+        # checks if the player is colliding with the top and bottom of the screen
+        if (self.y + self.rect.height) > scrnH:
+            self.y = scrnH - self.rect.height
+            self.y_vel = 0
+        elif self.y < 0:
+            self.y = 0
+            self.y_vel = 0
+
+        self.rect.y = self.y
     
     def jump(self, jump_speed):
         self.y_vel = -jump_speed
@@ -43,6 +53,9 @@ class Player:
     def draw(self):
         screen.blit(self.rimg, (self.x, self.y))
     
+# class obstacle:
+#     def __init__(self, )
+
 def start_screen():
     running = True
     in_game()
@@ -57,13 +70,15 @@ def start_screen():
 
 def in_game():
     running = True
-    pl = Player(player_img, 128, 0, 50, 128, 0, 64, 64)
+    pl = Player(player_img, 128, 0, 50, 128, 0, 64, 48)
     fall_speed = 0.3
     jump_speed = 8.0
 
     while running:
         clock.tick(60)
         screen.fill((0, 0, 0)) # draw background
+
+        
 
         pl.update(fall_speed) # update the position of the player
         pl.draw() # blit rimg on the screen
@@ -116,4 +131,11 @@ he told me
 let the children lose it
 let the children use it
 let all the children boogie
+
+ _______ .__   __.  _______   _______  __   _______  __       _______     ____    __    ____  __    __   _______ .__   __. 
+|   ____||  \ |  | |       \ |   ____||  | |   ____||  |     |       \    \   \  /  \  /   / |  |  |  | |   ____||  \ |  | 
+|  |__   |   \|  | |  .--.  ||  |__   |  | |  |__   |  |     |  .--.  |    \   \/    \/   /  |  |__|  | |  |__   |   \|  | 
+|   __|  |  . `  | |  |  |  ||   __|  |  | |   __|  |  |     |  |  |  |     \            /   |   __   | |   __|  |  . `  | 
+|  |____ |  |\   | |  '--'  ||  |     |  | |  |____ |  `----.|  '--'  |      \    /\    /    |  |  |  | |  |____ |  |\   | 
+|_______||__| \__| |_______/ |__|     |__| |_______||_______||_______/        \__/  \__/     |__|  |__| |_______||__| \__| 
 '''
