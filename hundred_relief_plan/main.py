@@ -53,8 +53,21 @@ class Player:
     def draw(self):
         screen.blit(self.rimg, (self.x, self.y))
     
-# class obstacle:
-#     def __init__(self, )
+class obstacle:
+    def __init__(self, rimg, x, y, speed, y_range_min, y_range_max, kill_coord):
+        self.rimg = rimg
+        self.x = x
+        self.y = y
+        self.init_x = x
+        self.speed = speed
+        self.y_range_min = y_range_min
+        self.y_range_max = y_range_max
+        self.kill_coord = kill_coord
+
+    def update(self):
+        self.x += self.speed
+        if self.x <= self.kill_coord:
+            self.kill()
 
 def start_screen():
     running = True
