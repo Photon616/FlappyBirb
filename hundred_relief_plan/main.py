@@ -84,6 +84,7 @@ def start_screen():
 def in_game():
     running = True
     pl = Player(player_img, 128, 0, 50, 128, 0, 64, 48)
+    enemies = pygame.sprite.Group()
     fall_speed = 0.3
     jump_speed = 8.0
 
@@ -91,7 +92,7 @@ def in_game():
         clock.tick(60)
         screen.fill((0, 0, 0)) # draw background
 
-        
+        # .add(Bullet(player_x, player_y))
 
         pl.update(fall_speed) # update the position of the player
         pl.draw() # blit rimg on the screen
