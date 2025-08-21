@@ -65,9 +65,9 @@ class obstacle:
         self.kill_coord = kill_coord
 
     def update(self):
-        self.x += self.speed
-        if self.x <= self.kill_coord:
-            self.kill()
+        self.x -= self.speed
+        # if self.x <= self.kill_coord:
+        #     self.kill()
 
 def start_screen():
     running = True
