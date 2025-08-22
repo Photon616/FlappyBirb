@@ -53,7 +53,7 @@ class Player:
     def draw(self):
         screen.blit(self.rimg, (self.x, self.y))
     
-class obstacle:
+class Obstacle:
     def __init__(self, rimg, x, y, speed, y_range_min, y_range_max, kill_coord):
         self.rimg = rimg
         self.x = x
@@ -92,10 +92,13 @@ def in_game():
         clock.tick(60)
         screen.fill((0, 0, 0)) # draw background
 
-        # .add(Bullet(player_x, player_y))
+        enemies.add(Obstacle(pl.x, pl.y))
 
-        pl.update(fall_speed) # update the position of the player
+        pl.update(fall_speed) # update the position of the 
+        enemies.update()
+
         pl.draw() # blit rimg on the screen
+        enemies.draw() 
 
         pygame.display.update() # update the screen
 
