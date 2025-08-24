@@ -20,7 +20,7 @@ player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.
 player_img = pygame.transform.scale(player_img, (64, 48))
 enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
 enemy_img = pygame.transform.scale(enemy_img, (64, 48))
-bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/kabosu_highres.png") 
+bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/kabosu_highres.jpg") 
 bullet_img = pygame.transform.scale(bullet_img, (50, 10))
 
 # classes
@@ -80,15 +80,16 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, image, x, y, speed, kill_coord):
         super().__init__()
         self.image = image
+        self.rect = self.image.get_rect(topleft=(x, y))
         self.x = x
         self.y = y
         self.speed = speed
         self.kill_coord = kill_coord
     
     def update(self):
-        self.rect.x -= self.speed
+        self.rect.x += self.speed
         # print("updated")
-        if self.rect.right < 0:
+        if self.rect.left < 0:
             self.kill()
 
 def start_screen():
@@ -127,23 +128,32 @@ def in_game():
             # print("really added")
             enemy_time = 0 # initialize time to prevent overflow/save memory
 
-        if weapon_time / 60 >= weapon_time:
-            print("pew-")
-            bullets.add(Bullet())
+        # keys = pygame.key.get_pressed()
+        # if keys[pygame.K_f] and weapon_time / 60 >= weapon_time:
+        #     print("pew-")
+        #     bullets.add(Bullet(bullet_img, pl.x, pl.y, bullet_speed, scrnW))
+        #     weapon_time = 0
 
         pl.update(fall_speed) # update the position of the 
         enemies.update()
+        bullets.update()
 
-        pl.draw() # blit rimg on the screen
         enemies.draw(screen) 
+        bullets.draw(screen)
+        pl.draw() # blit rimg on the screen
 
         pygame.display.update() # update the screen
         enemy_time += 1
+        weapon_time += 1
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     pl.jump(jump_speed)
+                if event.key == pygame.K_f and weapon_time / 60 >= weapon_duration:
+                    print("pew-")
+                    bullets.add(Bullet(bullet_img, pl.x, pl.y, bullet_speed, scrnW))
+                    weapon_time = 0
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
