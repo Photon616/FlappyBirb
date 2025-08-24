@@ -18,6 +18,10 @@ clock = pygame.time.Clock()
 # if not loading, try removing hundred_relief_plan in the directory.
 player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 player_img = pygame.transform.scale(player_img, (64, 48))
+enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
+enemy_img = pygame.transform.scale(enemy_img, (64, 48))
+bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/kabosu_highres.png") 
+bullet_img = pygame.transform.scale(bullet_img, (50, 10))
 
 # classes
 class Player:
@@ -53,11 +57,13 @@ class Player:
     def draw(self):
         screen.blit(self.rimg, (self.x, self.y))
     
-class Obstacle:
-    def __init__(self, rimg, x, y, speed, y_range_min, y_range_max, kill_coord):
-        self.rimg = rimg
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, image, x, speed, y_range_min, y_range_max, kill_coord):
+        super().__init__()
+        self.image = image
         self.x = x
-        self.y = y
+        self.y = random.randrange(y_range_min, y_range_max, 1)
+        self.rect = self.image.get_rect(topleft=(x, self.y))
         self.init_x = x
         self.speed = speed
         self.y_range_min = y_range_min
@@ -65,9 +71,25 @@ class Obstacle:
         self.kill_coord = kill_coord
 
     def update(self):
-        self.x -= self.speed
-        # if self.x <= self.kill_coord:
-        #     self.kill()
+        self.rect.x -= self.speed
+        # print("updated")
+        if self.rect.right < 0:
+            self.kill()
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, image, x, y, speed, kill_coord):
+        super().__init__()
+        self.image = image
+        self.x = x
+        self.y = y
+        self.speed = speed
+        self.kill_coord = kill_coord
+    
+    def update(self):
+        self.rect.x -= self.speed
+        # print("updated")
+        if self.rect.right < 0:
+            self.kill()
 
 def start_screen():
     running = True
@@ -85,22 +107,38 @@ def in_game():
     running = True
     pl = Player(player_img, 128, 0, 50, 128, 0, 64, 48)
     enemies = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
     fall_speed = 0.3
-    jump_speed = 8.0
+    jump_speed = 8.0 
+    enemy_duration = 1 # in sec. division will be done after
+    enemy_time = (enemy_duration - 1) * 60
+    enemy_speed = 4
+    weapon_duration = 1 # in sec
+    weapon_time = weapon_duration * 60
+    bullet_speed = 10
 
     while running:
         clock.tick(60)
         screen.fill((0, 0, 0)) # draw background
 
-        enemies.add(Obstacle(pl.x, pl.y))
+        if enemy_time / 60 >= enemy_duration: # adds when time matches with duration.
+            # print("enemy added")
+            enemies.add(Obstacle(enemy_img, 680, enemy_speed, 110, 340, 0))
+            # print("really added")
+            enemy_time = 0 # initialize time to prevent overflow/save memory
+
+        if weapon_time / 60 >= weapon_time:
+            print("pew-")
+            bullets.add(Bullet())
 
         pl.update(fall_speed) # update the position of the 
         enemies.update()
 
         pl.draw() # blit rimg on the screen
-        enemies.draw() 
+        enemies.draw(screen) 
 
         pygame.display.update() # update the screen
+        enemy_time += 1
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
