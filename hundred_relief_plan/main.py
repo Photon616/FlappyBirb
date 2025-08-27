@@ -13,6 +13,8 @@ screen = pygame.display.set_mode((scrnW, scrnH))
 pygame.display.set_caption("operation")
 
 clock = pygame.time.Clock()
+pretendard_black = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Black.ttf", 64)
+pretendard = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Regular.ttf", 32)
 
 # load images here
 # if errors are occuring, try removing hundred_relief_plan from the directory.
@@ -20,7 +22,7 @@ player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.
 player_img = pygame.transform.scale(player_img, (64, 48))
 enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
 enemy_img = pygame.transform.scale(enemy_img, (64, 48))
-bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/kabosu_highres.jpg") 
+bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/missile.png") 
 bullet_img = pygame.transform.scale(bullet_img, (50, 10))
 cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_box.png") 
 cue_img = pygame.transform.scale(cue_img, (32, scrnH))
@@ -106,14 +108,16 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 class Explosion(pygame.sprite.Sprite):
-    def __init__(self, image, pos):
+    def __init__(self, image, pos, speed):
         super().__init__()
         self.image = image
         self.rect = self.image.get_rect(center = pos)
+        self.speed = speed
         self.timer = 15  # frames until disappears
 
     def update(self):
         self.timer -= 1
+        self.rect.x -= self.speed
         if self.timer <= 0:
             self.kill()
 
@@ -162,6 +166,10 @@ def start_screen():
                 pygame.quit()
 
 def in_game():
+    global pretendard
+    global pretendard_black
+
+    # universal
     running = True
     pl = Player(player_img, 128, 0, 50, 128, 0, 64, 48)
     enemies = pygame.sprite.Group()
@@ -170,16 +178,22 @@ def in_game():
     relief_packages = pygame.sprite.Group()
     fall_speed = 0.3
     jump_speed = 8.0 
+ 
+    # attention
+    attention = 0
+
     # enemy
     enemy_duration = 4 # in sec. division will be done after
     enemy_time = (enemy_duration - 1) * 60
     enemy_speed = 4
+
     # weapon
     weapon_duration = .5 # in sec
     weapon_time = weapon_duration * 60
     bullet_speed = 10
+
     # supply package
-    supply_duration = 5 # in sec
+    supply_duration = 2 # in sec
     supply_time = 0
 
     score = 0
@@ -188,18 +202,21 @@ def in_game():
         clock.tick(60)
         screen.fill((0, 0, 0)) # draw background
 
-        if enemy_time / 60 >= enemy_duration: # adds when time matches with duration.
+        # spawning enemies
+        if enemy_time / 60 >= enemy_duration - (attention / 100): # adds when time matches with duration.
             # print("enemy added")
             enemies.add(Obstacle(enemy_img, 680, enemy_speed, 110, 340, pl.rect.right, cue_img))
             # print("really added")
             enemy_time = 0 # initialize time to prevent overflow/save memory
         
+        # supply and scoring
         if supply_time / 60 >= supply_duration: # similar to enemies
             if pl.y_spd < 0:
                 package_speed = -1
             else:
                 package_speed = pl.y_spd * .5
             relief_packages.add(Relief_Package(package_img, pl.rect.centerx - 24, pl.rect.centery - 24, package_speed + 2, 50))
+            score += 10  # add score
             supply_time = 0
 
         # keys = pygame.key.get_pressed()
@@ -221,8 +238,12 @@ def in_game():
 
         for bullet, hit_list in hits.items():
             for hit_enemy in hit_list:
-                score += 10  # add score
-                effects.add(Explosion(explosion_img, hit_enemy.rect.center))
+                effects.add(Explosion(explosion_img, hit_enemy.rect.center, enemy_speed))
+        
+        score_text = pretendard_black.render(str(int(score)), True, (255, 255, 255))
+        score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2))
+
+        screen.blit(score_text, score_text_rect)
 
         bullets.draw(screen)
         enemies.draw(screen) 
@@ -230,10 +251,25 @@ def in_game():
         pl.draw() # blit rimg on the screen
         effects.draw(screen)
 
+        # attention bar
+        # bar_bg = pygame.Surface((scrnW, 16))
+        # bar_bg.fill((0, 255, 0))
+        # bar_bg.blit(screen, (120, 0))
+        pygame.draw.rect(screen, (255, 255, 255), ((0 - scrnW) + (attention * (scrnW / 300)), 0, scrnW, 32))  
+        if weapon_time >= weapon_duration * 60:
+            weapon_bar_x = weapon_duration * 60
+        else:
+            weapon_bar_x = weapon_time
+        pygame.draw.rect(screen, (0, 255, 0), ((0 - scrnW) + (weapon_bar_x * (scrnW / (weapon_duration * 60))), scrnH - 16, scrnW, 16))  
+        #print(weapon_bar_x * ((scrnW / weapon_duration) * 60))
+
         pygame.display.update() # update the screen
         enemy_time += 1
         weapon_time += 1
         supply_time += 1
+
+        if attention > 0:
+            attention -= 0.2
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -242,6 +278,10 @@ def in_game():
                 if event.key == pygame.K_f and weapon_time / 60 >= weapon_duration:
                     # print("bullet shot")
                     bullets.add(Bullet(bullet_img, pl.x, pl.rect.center[1] - 5, bullet_speed, scrnW))
+                    if enemy_duration - ((attention + 40) / 100) < 1:
+                        attention = 300
+                    else:
+                        attention += 50 # adds 0.2 to attention, speeding up enemy spawns
                     weapon_time = 0
                 if event.key == pygame.K_ESCAPE:
                     return "start"
@@ -289,10 +329,12 @@ def main():
 main()
 
 '''
- _______ .__   __.  _______   _______  __   _______  __       _______     ____    __    ____  __    __   _______ .__   __. 
-|   ____||  \ |  | |       \ |   ____||  | |   ____||  |     |       \    \   \  /  \  /   / |  |  |  | |   ____||  \ |  | 
-|  |__   |   \|  | |  .--.  ||  |__   |  | |  |__   |  |     |  .--.  |    \   \/    \/   /  |  |__|  | |  |__   |   \|  | 
-|   __|  |  . `  | |  |  |  ||   __|  |  | |   __|  |  |     |  |  |  |     \            /   |   __   | |   __|  |  . `  | 
-|  |____ |  |\   | |  '--'  ||  |     |  | |  |____ |  `----.|  '--'  |      \    /\    /    |  |  |  | |  |____ |  |\   | 
-|_______||__| \__| |_______/ |__|     |__| |_______||_______||_______/        \__/  \__/     |__|  |__| |_______||__| \__| 
+
+░██       ░██ ░██     ░██ ░██████████ ░███    ░██ ░██████████░██████░██████████ ░██         ░███████   
+░██       ░██ ░██     ░██ ░██         ░████   ░██ ░██          ░██  ░██         ░██         ░██   ░██  
+░██  ░██  ░██ ░██     ░██ ░██         ░██░██  ░██ ░██          ░██  ░██         ░██         ░██    ░██ 
+░██ ░████ ░██ ░██████████ ░█████████  ░██ ░██ ░██ ░█████████   ░██  ░█████████  ░██         ░██    ░██ 
+░██░██ ░██░██ ░██     ░██ ░██         ░██  ░██░██ ░██          ░██  ░██         ░██         ░██    ░██ 
+░████   ░████ ░██     ░██ ░██         ░██   ░████ ░██          ░██  ░██         ░██         ░██   ░██  
+░███     ░███ ░██     ░██ ░██████████ ░██    ░███ ░██        ░██████░██████████ ░██████████ ░███████                                                              
 '''
