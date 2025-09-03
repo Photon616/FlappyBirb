@@ -18,7 +18,7 @@ pretendard = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Regul
 
 # load images here
 # if errors are occuring, try removing hundred_relief_plan from the directory.
-player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
+player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone.png") 
 player_img = pygame.transform.scale(player_img, (64, 48))
 enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
 enemy_img = pygame.transform.scale(enemy_img, (64, 48))
