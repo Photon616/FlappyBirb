@@ -18,8 +18,8 @@ pretendard = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Regul
 
 # load images here
 # if errors are occuring, try removing hundred_relief_plan from the directory.
-player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone.png") 
-player_img = pygame.transform.scale(player_img, (64, 48))
+# player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_2.gif") 
+# player_img = pygame.transform.scale(player_img, (64, 48))
 enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
 enemy_img = pygame.transform.scale(enemy_img, (64, 48))
 bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/missile.png") 
@@ -35,10 +35,17 @@ package_img = pygame.transform.scale(package_img, (48, 48))
 start_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_640x480.png")
 gameover_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_800x600.png")
 
+# load player images
+player_sprites = []
+player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/0.png"))
+player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/1.png"))
+player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/2.png"))
+player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/3.png"))
+
 # classes
 class Player:
-    def __init__(self, rimg, x, y, y_spd_limit, rect_x, rect_y, rect_size_x, rect_size_y):
-        self.rimg = rimg
+    def __init__(self, sprites, x, y, y_spd_limit, rect_x, rect_y, rect_size_x, rect_size_y):
+        self.sprites = sprites
         self.x = x
         self.y = y
         self.y_spd = 0
@@ -66,8 +73,8 @@ class Player:
     def jump(self, jump_speed):
         self.y_spd = -jump_speed
     
-    def draw(self):
-        screen.blit(self.rimg, (self.x, self.y))
+    def draw(self, frame):
+        screen.blit(self.sprites[frame], (self.x, self.y))
     
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, image, x, speed, y_range_min, y_range_max, kill_coord, cue_img):
@@ -171,13 +178,18 @@ def in_game():
 
     # universal
     running = True
-    pl = Player(player_img, 128, 0, 50, 128, 0, 64, 48)
+    pl = Player(player_sprites, 128, 0, 50, 128, 0, 64, 48)
     enemies = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
     effects = pygame.sprite.Group()
     relief_packages = pygame.sprite.Group()
     fall_speed = 0.3
     jump_speed = 8.0 
+
+    #player
+    pl_frame = 0
+    pl_frame_time = 0
+    pl_frame_duration = .1
  
     # attention
     attention = 0
@@ -218,6 +230,13 @@ def in_game():
             relief_packages.add(Relief_Package(package_img, pl.rect.centerx - 24, pl.rect.centery - 24, package_speed + 2, 50))
             score += 10  # add score
             supply_time = 0
+        
+        # updating player sprite's frame
+        if pl_frame_time / 60 >= pl_frame_duration:
+            pl_frame += 1
+            if pl_frame >= 4:
+                pl_frame = 0
+            pl_frame_time = 0
 
         # keys = pygame.key.get_pressed()
         # if keys[pygame.K_f] and weapon_time / 60 >= weapon_time:
@@ -248,7 +267,7 @@ def in_game():
         bullets.draw(screen)
         enemies.draw(screen) 
         relief_packages.draw(screen)
-        pl.draw() # blit rimg on the screen
+        pl.draw(pl_frame) # blit rimg on the screen
         effects.draw(screen)
 
         # attention bar
@@ -267,6 +286,7 @@ def in_game():
         enemy_time += 1
         weapon_time += 1
         supply_time += 1
+        pl_frame_time += 1
 
         if attention > 0:
             attention -= 0.2
