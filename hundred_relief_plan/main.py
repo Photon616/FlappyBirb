@@ -16,6 +16,8 @@ clock = pygame.time.Clock()
 pretendard_black = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Black.ttf", 64)
 pretendard = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Regular.ttf", 32)
 
+score = 0
+
 # load images here
 # if errors are occuring, try removing hundred_relief_plan from the directory.
 # player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_2.gif") 
@@ -208,6 +210,7 @@ def in_game():
     supply_duration = 2 # in sec
     supply_time = 0
 
+    global score
     score = 0
 
     while running:
@@ -311,21 +314,40 @@ def in_game():
     
     #return "start"
 
-
 def game_over_screen():
+    global pretendard
+    global pretendard_black
+    global score
+
     running = True
     #print("test")
+
+    # for continue timer
+    cntn_time = 0
+    cntn_duration = 1
 
     while running:
         clock.tick(60)
         #screen.fill((0, 0, 0)) # draw background
         screen.blit(gameover_screen_background, (0, 0))
         
+        score_text = pretendard_black.render(f"{str(int(score))}", True, (255, 255, 255))
+        score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2 - 100))
+        screen.blit(score_text, score_text_rect)
+        
+        cntn_text = pretendard_black.render(f"SPACE로 복귀", True, (255, 255, 255))
+        cntn_text_rect = cntn_text.get_rect(center=(scrnW / 2, scrnH / 2 + 100))
+
+        if cntn_time >= cntn_duration * 60:
+            screen.blit(cntn_text, cntn_text_rect)
+
         pygame.display.update() # update the screen
+
+        cntn_time += 1
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and cntn_time >= cntn_duration * 60:
                     return "start"
             if event.type == pygame.QUIT:
                 running = False
