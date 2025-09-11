@@ -44,6 +44,9 @@ player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/pla
 player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/2.png"))
 player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/3.png"))
 
+# load explosion sprites
+explosion_sprites = []
+
 # classes
 class Player:
     def __init__(self, sprites, x, y, y_spd_limit, rect_x, rect_y, rect_size_x, rect_size_y):
@@ -220,7 +223,7 @@ def in_game():
         # spawning enemies
         if enemy_time / 60 >= enemy_duration - (attention / 100): # adds when time matches with duration.
             # print("enemy added")
-            enemies.add(Obstacle(enemy_img, 680, enemy_speed, 110, 340, pl.rect.right, cue_img))
+            enemies.add(Obstacle(enemy_img, 680, enemy_speed + random.randrange(-1, 1), 110, 340, pl.rect.right, cue_img))
             # print("really added")
             enemy_time = 0 # initialize time to prevent overflow/save memory
         
@@ -240,6 +243,9 @@ def in_game():
             if pl_frame >= 4:
                 pl_frame = 0
             pl_frame_time = 0
+        
+        score_text = pretendard_black.render(str(int(score)), True, (255, 255, 255))
+        score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2))
 
         # keys = pygame.key.get_pressed()
         # if keys[pygame.K_f] and weapon_time / 60 >= weapon_time:
@@ -261,9 +267,6 @@ def in_game():
         for bullet, hit_list in hits.items():
             for hit_enemy in hit_list:
                 effects.add(Explosion(explosion_img, hit_enemy.rect.center, enemy_speed))
-        
-        score_text = pretendard_black.render(str(int(score)), True, (255, 255, 255))
-        score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2))
 
         screen.blit(score_text, score_text_rect)
 
@@ -328,8 +331,8 @@ def game_over_screen():
 
     while running:
         clock.tick(60)
-        #screen.fill((0, 0, 0)) # draw background
-        screen.blit(gameover_screen_background, (0, 0))
+        screen.fill((0, 0, 0)) # draw background
+        # screen.blit(gameover_screen_background, (0, 0))
         
         score_text = pretendard_black.render(f"{str(int(score))}", True, (255, 255, 255))
         score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2 - 100))
