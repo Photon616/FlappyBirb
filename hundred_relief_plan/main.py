@@ -159,6 +159,22 @@ class Relief_Package(pygame.sprite.Sprite):
         if self.rect.top >= scrnH or self.rect.right <= 0:
             self.kill()
 
+class Silencer_Item(pygame.sprite.Sprite):
+    def __init__(self, image, x, y, speed, kill_coord):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect(center = (x, y))
+        self.x = x
+        self.y = y
+        self.speed = speed
+        self.kill_coord = kill_coord
+    
+    def update(self):
+        self.rect.x += self.speed
+
+        if self.rect.right < self.kill_coord:
+            self.kill()
+
 def start_screen():
     running = True
     
