@@ -20,20 +20,21 @@ score = 0
 
 # load images here
 # if errors are occuring, try removing hundred_relief_plan from the directory.
-# player_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_2.gif") 
-# player_img = pygame.transform.scale(player_img, (64, 48))
 enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
 enemy_img = pygame.transform.scale(enemy_img, (64, 48))
 bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/missile.png") 
 bullet_img = pygame.transform.scale(bullet_img, (50, 10))
 cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_box.png") 
 cue_img = pygame.transform.scale(cue_img, (32, scrnH))
-#effects
+# effects
 explosion_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 explosion_img = pygame.transform.scale(explosion_img, (128, 128))
 package_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 package_img = pygame.transform.scale(package_img, (48, 48))
-#bg
+# items
+silencer_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
+silencer_img = pygame.transform.scale(silencer_img, (64, 64))
+# bg
 start_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_640x480.png")
 gameover_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_800x600.png")
 
@@ -170,8 +171,7 @@ class Silencer_Item(pygame.sprite.Sprite):
         self.kill_coord = kill_coord
     
     def update(self):
-        self.rect.x += self.speed
-
+        self.rect.x -= self.speed
         if self.rect.right < self.kill_coord:
             self.kill()
 
@@ -204,6 +204,7 @@ def in_game():
     bullets = pygame.sprite.Group()
     effects = pygame.sprite.Group()
     relief_packages = pygame.sprite.Group()
+    silencers = pygame.sprite.Group()
     fall_speed = 0.3
     jump_speed = 8.0 
 
@@ -229,6 +230,11 @@ def in_game():
     supply_duration = 2 # in sec
     supply_time = 0
 
+    # silencer item
+    slcr_duration = 1
+    slcr_time = 0
+    silenced = False
+
     global score
     score = 0
 
@@ -242,9 +248,14 @@ def in_game():
             enemies.add(Obstacle(enemy_img, 680, enemy_speed + random.randrange(-1, 1), 110, 340, pl.rect.right, cue_img))
             # print("really added")
             enemy_time = 0 # initialize time to prevent overflow/save memory
-        
+
+        # spawining silencer items
+        if slcr_time / 60 >= slcr_duration: # similar to enemies
+            silencers.add(Silencer_Item(silencer_img, 680, random.randrange(110, 340), enemy_speed, -10))
+            slcr_time = 0
+
         # supply and scoring
-        if supply_time / 60 >= supply_duration: # similar to enemies
+        if supply_time / 60 >= supply_duration:
             if pl.y_spd < 0:
                 package_speed = -1
             else:
@@ -259,6 +270,12 @@ def in_game():
             if pl_frame >= 4:
                 pl_frame = 0
             pl_frame_time = 0
+
+        # handling collisions between items and player
+        slcr_col = pygame.sprite.spritecollide(pl, silencers, dokill = False)
+        for col_obj in slcr_col:
+            silenced = True
+            col_obj.kill()
         
         score_text = pretendard_black.render(str(int(score)), True, (255, 255, 255))
         score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2))
@@ -274,6 +291,7 @@ def in_game():
         effects.update()
         enemies.update()
         relief_packages.update(0.2)
+        silencers.update()
         for target_enemy in enemies:
             if target_enemy.is_over:
                 return "gameover"
@@ -291,6 +309,7 @@ def in_game():
         relief_packages.draw(screen)
         pl.draw(pl_frame) # blit rimg on the screen
         effects.draw(screen)
+        silencers.draw(screen)
 
         # attention bar
         # bar_bg = pygame.Surface((scrnW, 16))
@@ -305,10 +324,13 @@ def in_game():
         #print(weapon_bar_x * ((scrnW / weapon_duration) * 60))
 
         pygame.display.update() # update the screen
+        
+        # raise one on every time variables
         enemy_time += 1
         weapon_time += 1
         supply_time += 1
         pl_frame_time += 1
+        slcr_time += 1
 
         if attention > 0:
             attention -= 0.2
@@ -320,10 +342,13 @@ def in_game():
                 if event.key == pygame.K_f and weapon_time / 60 >= weapon_duration:
                     # print("bullet shot")
                     bullets.add(Bullet(bullet_img, pl.x, pl.rect.center[1] - 5, bullet_speed, scrnW))
-                    if enemy_duration - ((attention + 40) / 100) < 1:
-                        attention = 300
+                    if not silenced:
+                        if enemy_duration - ((attention + 40) / 100) < 1:
+                            attention = 300
+                        else:
+                            attention += 50 # adds 0.2 to attention, speeding up enemy spawns
                     else:
-                        attention += 50 # adds 0.2 to attention, speeding up enemy spawns
+                        silenced = False
                     weapon_time = 0
                 if event.key == pygame.K_ESCAPE:
                     return "start"
