@@ -31,6 +31,8 @@ explosion_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker
 explosion_img = pygame.transform.scale(explosion_img, (128, 128))
 package_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 package_img = pygame.transform.scale(package_img, (48, 48))
+slcr_effect_img = pygame.image.load("hundred_relief_plan/Assets/Textures/hollow_white_circle.png") 
+slcr_effect_img = pygame.transform.scale(slcr_effect_img, (96, 96))
 # items
 silencer_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
 silencer_img = pygame.transform.scale(silencer_img, (64, 64))
@@ -231,7 +233,7 @@ def in_game():
     supply_time = 0
 
     # silencer item
-    slcr_duration = 1
+    slcr_duration = 7
     slcr_time = 0
     silenced = False
 
@@ -311,6 +313,10 @@ def in_game():
         effects.draw(screen)
         silencers.draw(screen)
 
+        # draw silenced effect
+        if silenced:
+            screen.blit(slcr_effect_img, (pl.rect.centerx - 48, pl.rect.centery - 48))
+
         # attention bar
         # bar_bg = pygame.Surface((scrnW, 16))
         # bar_bg.fill((0, 255, 0))
@@ -348,7 +354,7 @@ def in_game():
                         else:
                             attention += 50 # adds 0.2 to attention, speeding up enemy spawns
                     else:
-                        silenced = False
+                        silenced = False 
                     weapon_time = 0
                 if event.key == pygame.K_ESCAPE:
                     return "start"
