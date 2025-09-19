@@ -34,7 +34,7 @@ package_img = pygame.transform.scale(package_img, (48, 48))
 slcr_effect_img = pygame.image.load("hundred_relief_plan/Assets/Textures/hollow_white_circle.png") 
 slcr_effect_img = pygame.transform.scale(slcr_effect_img, (96, 96))
 # items
-silencer_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
+silencer_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 silencer_img = pygame.transform.scale(silencer_img, (64, 64))
 # bg
 start_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_640x480.png")
@@ -89,7 +89,7 @@ class Obstacle(pygame.sprite.Sprite):
         super().__init__()
         self.image = image
         self.y = random.randrange(y_range_min, y_range_max, 1)
-        self.rect = self.image.get_rect(topleft=(x, self.y))
+        self.rect = self.image.get_rect(topleft = (x, self.y))
         self.init_x = x
         self.speed = speed
         self.y_range_min = y_range_min
@@ -106,11 +106,30 @@ class Obstacle(pygame.sprite.Sprite):
 
         screen.blit(self.cue_img, (self.rect.right - 32, 0))
 
+class Missile_Obstacle(pygame.sprite.Sprite):
+    def __init__(self, image, x, y, speed, y_range_min, y_range_max, kill_coord, cue_image):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect (topleft = (x, y))
+        self.init_x = x
+        self.init_y = y
+        self.speed = speed
+        self.y_range_min = y_range_min
+        self.y_range_max = y_range_max
+        self.kill_coord = kill_coord
+        self.cue_img = cue_img
+        self.is_over = False
+    
+    def update(self):
+        self.rect.x += self.speed
+        if self.rect.right < self.kill_coord:
+            self.kill()
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, image, x, y, speed, kill_coord):
         super().__init__()
         self.image = image
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.rect = self.image.get_rect(topleft = (x, y))
         self.x = x
         self.y = y
         self.speed = speed
@@ -252,6 +271,7 @@ def in_game():
             enemy_time = 0 # initialize time to prevent overflow/save memory
 
         # spawining silencer items
+        slcr_duration = random.randint(10, 13)
         if slcr_time / 60 >= slcr_duration: # similar to enemies
             silencers.add(Silencer_Item(silencer_img, 680, random.randrange(110, 340), enemy_speed, -10))
             slcr_time = 0
@@ -349,12 +369,12 @@ def in_game():
                     # print("bullet shot")
                     bullets.add(Bullet(bullet_img, pl.x, pl.rect.center[1] - 5, bullet_speed, scrnW))
                     if not silenced:
-                        if enemy_duration - ((attention + 40) / 100) < 1:
+                        if enemy_duration - ((attention + 60) / 100) < 1:
                             attention = 300
                         else:
-                            attention += 50 # adds 0.2 to attention, speeding up enemy spawns
+                            attention += 60 # adds 0.3 to attention, speeding up enemy spawns
                     else:
-                        silenced = False 
+                        silenced = False  
                     weapon_time = 0
                 if event.key == pygame.K_ESCAPE:
                     return "start"
@@ -368,7 +388,7 @@ def game_over_screen():
     global pretendard
     global pretendard_black
     global score
-
+ 
     running = True
     #print("test")
 
@@ -428,4 +448,5 @@ main()
 ░██░██ ░██░██ ░██     ░██ ░██         ░██  ░██░██ ░██          ░██  ░██         ░██         ░██    ░██ 
 ░████   ░████ ░██     ░██ ░██         ░██   ░████ ░██          ░██  ░██         ░██         ░██   ░██  
 ░███     ░███ ░██     ░██ ░██████████ ░██    ░███ ░██        ░██████░██████████ ░██████████ ░███████                                                              
+560점
 '''
