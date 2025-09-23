@@ -22,10 +22,14 @@ score = 0
 # if errors are occuring, try removing hundred_relief_plan from the directory.
 enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
 enemy_img = pygame.transform.scale(enemy_img, (64, 48))
+enemy_missile_img = pygame.image.load("hundred_relief_plan/Assets/Textures/kabosu_highres.jpg") 
+enemy_missile_img = pygame.transform.scale(enemy_missile_img, (50, 10))
 bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/missile.png") 
 bullet_img = pygame.transform.scale(bullet_img, (50, 10))
-cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_box.png") 
-cue_img = pygame.transform.scale(cue_img, (32, scrnH))
+enemy_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_box.png") 
+enemy_cue_img = pygame.transform.scale(enemy_cue_img, (32, scrnH))
+enemy_missile_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_box.png") 
+enemy_missile_cue_img = pygame.transform.scale(enemy_missile_cue_img, (scrnW, 10))
 # effects
 explosion_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 explosion_img = pygame.transform.scale(explosion_img, (128, 128))
@@ -107,12 +111,12 @@ class Obstacle(pygame.sprite.Sprite):
         screen.blit(self.cue_img, (self.rect.right - 32, 0))
 
 class Missile_Obstacle(pygame.sprite.Sprite):
-    def __init__(self, image, x, y, speed, y_range_min, y_range_max, kill_coord, cue_image):
+    def __init__(self, image, x, speed, y_range_min, y_range_max, kill_coord, cue_img):
         super().__init__()
         self.image = image
-        self.rect = self.image.get_rect (topleft = (x, y))
         self.init_x = x
-        self.init_y = y
+        self.init_y = random.randrange(y_range_min, y_range_max)
+        self.rect = self.image.get_rect (topleft = (x, self.init_y))
         self.speed = speed
         self.y_range_min = y_range_min
         self.y_range_max = y_range_max
@@ -121,9 +125,11 @@ class Missile_Obstacle(pygame.sprite.Sprite):
         self.is_over = False
     
     def update(self):
-        self.rect.x += self.speed
+        self.rect.x -= self.speed
         if self.rect.right < self.kill_coord:
             self.kill()
+        
+        screen.blit(self.cue_img, (0, self.rect.top))
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, image, x, y, speed, kill_coord):
@@ -226,6 +232,7 @@ def in_game():
     effects = pygame.sprite.Group()
     relief_packages = pygame.sprite.Group()
     silencers = pygame.sprite.Group()
+    enemy_missiles = pygame.sprite.Group()
     fall_speed = 0.3
     jump_speed = 8.0 
 
@@ -241,6 +248,10 @@ def in_game():
     enemy_duration = 4 # in sec. division will be done after
     enemy_time = (enemy_duration - 1) * 60
     enemy_speed = 4
+
+    enemy_missile_duration = 4 # in sec. division will be done after
+    enemy_missile_time = (enemy_missile_duration - 1) * 60
+    enemy_missile_speed = 10
 
     # weapon
     weapon_duration = .5 # in sec
@@ -266,9 +277,14 @@ def in_game():
         # spawning enemies
         if enemy_time / 60 >= enemy_duration - (attention / 100): # adds when time matches with duration.
             # print("enemy added")
-            enemies.add(Obstacle(enemy_img, 680, enemy_speed + random.randrange(-1, 1), 110, 340, pl.rect.right, cue_img))
+            enemies.add(Obstacle(enemy_img, 680, enemy_speed + random.randrange(-1, 1), 110, 340, pl.rect.right, enemy_cue_img))
             # print("really added")
             enemy_time = 0 # initialize time to prevent overflow/save memory
+        
+        if enemy_missile_time / 60 >= enemy_missile_duration and attention >= 150:
+            enemy_missiles.add(Missile_Obstacle(enemy_missile_img, 1200, enemy_missile_speed, 110, 340, 0, enemy_missile_cue_img))
+            enemy_missile_time = 0
+            print("missles")
 
         # spawining silencer items
         slcr_duration = random.randint(10, 13)
@@ -308,26 +324,33 @@ def in_game():
         #     bullets.add(Bullet(bullet_img, pl.x, pl.y, bullet_speed, scrnW))
         #     weapon_time = 0
 
-        pl.update(fall_speed) # update the position of the player
-        bullets.update()
-        effects.update()
-        enemies.update()
-        relief_packages.update(0.2)
-        silencers.update()
-        for target_enemy in enemies:
-            if target_enemy.is_over:
-                return "gameover"
-
         hits = pygame.sprite.groupcollide(bullets, enemies, True, True)
 
         for bullet, hit_list in hits.items():
             for hit_enemy in hit_list:
                 effects.add(Explosion(explosion_img, hit_enemy.rect.center, enemy_speed))
 
+        hits1 = pygame.sprite.spritecollideany(pl, enemy_missiles)
+
+        if hits1:
+            return "gameover"
+
         screen.blit(score_text, score_text_rect)
 
+        pl.update(fall_speed) # update the position of the player
+        bullets.update()
+        effects.update()
+        enemies.update()
+        relief_packages.update(0.2)
+        silencers.update()
+        enemy_missiles.update()
+        for target_enemy in enemies:
+            if target_enemy.is_over:
+                return "gameover"
+        
         bullets.draw(screen)
         enemies.draw(screen) 
+        enemy_missiles.draw(screen)
         relief_packages.draw(screen)
         pl.draw(pl_frame) # blit rimg on the screen
         effects.draw(screen)
@@ -357,6 +380,7 @@ def in_game():
         supply_time += 1
         pl_frame_time += 1
         slcr_time += 1
+        enemy_missile_time += 1
 
         if attention > 0:
             attention -= 0.2
