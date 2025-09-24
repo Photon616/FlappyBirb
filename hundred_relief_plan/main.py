@@ -53,6 +53,8 @@ player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/pla
 
 # load explosion sprites
 explosion_sprites = []
+for i in range(1, 16):
+    explosion_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/explosion/" + str(i) + ".png"))
 
 # classes
 class Player:
@@ -148,18 +150,21 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 class Explosion(pygame.sprite.Sprite):
-    def __init__(self, image, pos, speed):
+    def __init__(self, sprites, pos, speed):
         super().__init__()
-        self.image = image
-        self.rect = self.image.get_rect(center = pos)
+        self.sprites = sprites
+        self.rect = self.sprites[0].get_rect(center = pos)
         self.speed = speed
-        self.timer = 15  # frames until disappears
+        self.timer = 30  # frames until disappears
 
     def update(self):
         self.timer -= 1
         self.rect.x -= self.speed
         if self.timer <= 0:
             self.kill()
+    
+    def render(self):
+        screen.blit(self.sprites[int((30 - self.timer) / 2)], self.rect.topleft)
 
 class Relief_Package(pygame.sprite.Sprite):
     def __init__(self, image, x, y, y_spd, x_spd_limit):
@@ -272,7 +277,7 @@ def in_game():
 
     while running:
         clock.tick(60)
-        screen.fill((0, 0, 0)) # draw background
+        screen.fill((61, 61, 61)) # draw background
 
         # spawning enemies
         if enemy_time / 60 >= enemy_duration - (attention / 100): # adds when time matches with duration.
@@ -328,7 +333,7 @@ def in_game():
 
         for bullet, hit_list in hits.items():
             for hit_enemy in hit_list:
-                effects.add(Explosion(explosion_img, hit_enemy.rect.center, enemy_speed))
+                effects.add(Explosion(explosion_sprites, hit_enemy.rect.center, enemy_speed))
 
         hits1 = pygame.sprite.spritecollideany(pl, enemy_missiles)
 
@@ -353,7 +358,8 @@ def in_game():
         enemy_missiles.draw(screen)
         relief_packages.draw(screen)
         pl.draw(pl_frame) # blit rimg on the screen
-        effects.draw(screen)
+        for i in effects:
+            i.render()
         silencers.draw(screen)
 
         # draw silenced effect
@@ -384,7 +390,7 @@ def in_game():
 
         if attention > 0:
             attention -= 0.2
-
+        
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
