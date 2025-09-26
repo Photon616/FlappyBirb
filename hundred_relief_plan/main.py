@@ -289,7 +289,7 @@ def in_game():
         if enemy_missile_time / 60 >= enemy_missile_duration and attention >= 150:
             enemy_missiles.add(Missile_Obstacle(enemy_missile_img, 1200, enemy_missile_speed, 110, 340, 0, enemy_missile_cue_img))
             enemy_missile_time = 0
-            print("missles")
+            #print("missles")
 
         # spawining silencer items
         slcr_duration = random.randint(10, 13)
