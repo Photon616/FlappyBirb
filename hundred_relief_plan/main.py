@@ -54,7 +54,7 @@ player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/pla
 # load explosion sprites
 explosion_sprites = []
 for i in range(1, 16):
-    explosion_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/explosion2/" + str(i) + ".png"))
+    explosion_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/explosion3/" + str(i) + ".png"))
 
 # classes
 class Player:
