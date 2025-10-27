@@ -20,8 +20,8 @@ score = 0
 
 # load images here
 # if errors are occuring, try removing hundred_relief_plan from the directory.
-enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
-enemy_img = pygame.transform.scale(enemy_img, (64, 48))
+# enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
+# enemy_img = pygame.transform.scale(enemy_img, (64, 48))
 enemy_missile_img = pygame.image.load("hundred_relief_plan/Assets/Textures/kabosu_highres.jpg") 
 enemy_missile_img = pygame.transform.scale(enemy_missile_img, (50, 10))
 bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/missile.png") 
@@ -44,12 +44,17 @@ silencer_img = pygame.transform.scale(silencer_img, (64, 64))
 start_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_640x480.png")
 gameover_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_800x600.png")
 
-# load player images
+# load player sprites
 player_sprites = []
 player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/0.png"))
 player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/1.png"))
 player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/2.png"))
 player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/player_drone_sheets_2/3.png"))
+
+# load enemy sprites
+enemy_sprites = []
+enemy_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/enemy_drone_sheets/0.png"))
+enemy_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/enemy_drone_sheets/1.png"))
 
 # load explosion sprites
 explosion_sprites = []
@@ -91,11 +96,11 @@ class Player:
         screen.blit(self.sprites[frame], (self.x, self.y))
     
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, image, x, speed, y_range_min, y_range_max, kill_coord, cue_img):
+    def __init__(self, sprites, x, speed, y_range_min, y_range_max, kill_coord, cue_img):
         super().__init__()
-        self.image = image
+        self.sprites = sprites
         self.y = random.randrange(y_range_min, y_range_max, 1)
-        self.rect = self.image.get_rect(topleft = (x, self.y))
+        self.rect = self.sprites[0].get_rect(topleft = (x, self.y))
         self.init_x = x
         self.speed = speed
         self.y_range_min = y_range_min
@@ -111,6 +116,9 @@ class Obstacle(pygame.sprite.Sprite):
             #self.kill()
 
         screen.blit(self.cue_img, (self.rect.right - 32, 0))
+    
+    def render(self, frame):
+        screen.blit(self.sprites[frame], self.rect.topleft)
 
 class Missile_Obstacle(pygame.sprite.Sprite):
     def __init__(self, image, x, speed, y_range_min, y_range_max, kill_coord, cue_img):
@@ -253,6 +261,9 @@ def in_game():
     enemy_duration = 4 # in sec. division will be done after
     enemy_time = (enemy_duration - 1) * 60
     enemy_speed = 4
+    enemy_frame = 0
+    enemy_frame_time = 0
+    enemy_frame_duration = .1
 
     enemy_missile_duration = 4 # in sec. division will be done after
     enemy_missile_time = (enemy_missile_duration - 1) * 60
@@ -282,7 +293,7 @@ def in_game():
         # spawning enemies
         if enemy_time / 60 >= enemy_duration - (attention / 100): # adds when time matches with duration.
             # print("enemy added")
-            enemies.add(Obstacle(enemy_img, 680, enemy_speed + random.randrange(-1, 1), 110, 340, pl.rect.right, enemy_cue_img))
+            enemies.add(Obstacle(enemy_sprites, 680, enemy_speed + random.randrange(-1, 1), 110, 340, pl.rect.right, enemy_cue_img))
             # print("really added")
             enemy_time = 0 # initialize time to prevent overflow/save memory
         
@@ -313,6 +324,13 @@ def in_game():
             if pl_frame >= 4:
                 pl_frame = 0
             pl_frame_time = 0
+
+        # updating enemy sprites' frame
+        if enemy_frame_time / 60 >= enemy_frame_duration:
+            enemy_frame += 1
+            if enemy_frame >= 2:
+                enemy_frame = 0
+            enemy_frame_time = 0
 
         # handling collisions between items and player
         slcr_col = pygame.sprite.spritecollide(pl, silencers, dokill = False)
@@ -354,7 +372,8 @@ def in_game():
                 return "gameover"
         
         bullets.draw(screen)
-        enemies.draw(screen) 
+        for i in enemies:
+            i.render(enemy_frame)
         enemy_missiles.draw(screen)
         relief_packages.draw(screen)
         pl.draw(pl_frame) # blit rimg on the screen
@@ -385,6 +404,7 @@ def in_game():
         weapon_time += 1
         supply_time += 1
         pl_frame_time += 1
+        enemy_frame_time += 1
         slcr_time += 1
         enemy_missile_time += 1
 
