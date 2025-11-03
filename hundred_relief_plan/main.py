@@ -26,9 +26,9 @@ enemy_missile_img = pygame.image.load("hundred_relief_plan/Assets/Textures/kabos
 enemy_missile_img = pygame.transform.scale(enemy_missile_img, (50, 10))
 bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/missile.png") 
 bullet_img = pygame.transform.scale(bullet_img, (50, 10))
-enemy_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_box.png") 
-enemy_cue_img = pygame.transform.scale(enemy_cue_img, (32, scrnH))
-enemy_missile_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/player_box.png") 
+enemy_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/gradient3.png")
+enemy_cue_img = pygame.transform.scale(enemy_cue_img, (48, scrnH))
+enemy_missile_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/gradient4.png") 
 enemy_missile_cue_img = pygame.transform.scale(enemy_missile_cue_img, (scrnW, 10))
 # effects
 explosion_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
@@ -42,6 +42,7 @@ silencer_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1
 silencer_img = pygame.transform.scale(silencer_img, (64, 64))
 # bg
 start_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_640x480.png")
+ingame_background = pygame.image.load("hundred_relief_plan/Assets/Textures/background_test.jpg")
 gameover_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_800x600.png")
 
 # load player sprites
@@ -53,8 +54,8 @@ player_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/pla
 
 # load enemy sprites
 enemy_sprites = []
-enemy_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/enemy_drone_sheets/0.png"))
-enemy_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/enemy_drone_sheets/1.png"))
+enemy_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/enemy_drone_sheets_2/0.png"))
+enemy_sprites.append(pygame.image.load("hundred_relief_plan/Assets/Textures/enemy_drone_sheets_2/1.png"))
 
 # load explosion sprites
 explosion_sprites = []
@@ -115,7 +116,7 @@ class Obstacle(pygame.sprite.Sprite):
             self.is_over = True
             #self.kill()
 
-        screen.blit(self.cue_img, (self.rect.right - 32, 0))
+        screen.blit(self.cue_img, (self.rect.left, 0))
     
     def render(self, frame):
         screen.blit(self.sprites[frame], self.rect.topleft)
@@ -283,12 +284,15 @@ def in_game():
     slcr_time = 0
     silenced = False
 
+    # background
+    bg_scroll = 0
+
     global score
     score = 0
 
     while running:
         clock.tick(60)
-        screen.fill((61, 61, 61)) # draw background
+        # screen.fill((61, 61, 61)) # draw background
 
         # spawning enemies
         if enemy_time / 60 >= enemy_duration - (attention / 100): # adds when time matches with duration.
@@ -358,6 +362,11 @@ def in_game():
         if hits1:
             return "gameover"
 
+        screen.blit(ingame_background, (bg_scroll, 0))
+        screen.blit(ingame_background, (bg_scroll + scrnW, 0))
+        if -bg_scroll >= scrnW:
+            bg_scroll = 0
+
         screen.blit(score_text, score_text_rect)
 
         pl.update(fall_speed) # update the position of the player
@@ -407,6 +416,7 @@ def in_game():
         enemy_frame_time += 1
         slcr_time += 1
         enemy_missile_time += 1
+        bg_scroll -= .5 # control background speed here
 
         if attention > 0:
             attention -= 0.2
