@@ -29,7 +29,7 @@ bullet_img = pygame.transform.scale(bullet_img, (50, 10))
 enemy_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/gradient3.png")
 enemy_cue_img = pygame.transform.scale(enemy_cue_img, (48, scrnH))
 enemy_missile_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/gradient4.png") 
-enemy_missile_cue_img = pygame.transform.scale(enemy_missile_cue_img, (scrnW, 10))
+enemy_missile_cue_img = pygame.transform.scale(enemy_missile_cue_img, (scrnW, 6))
 # effects
 explosion_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 explosion_img = pygame.transform.scale(explosion_img, (128, 128))
@@ -140,7 +140,7 @@ class Missile_Obstacle(pygame.sprite.Sprite):
         if self.rect.right < self.kill_coord:
             self.kill()
         
-        screen.blit(self.cue_img, (0, self.rect.top))
+        screen.blit(self.cue_img, (0, self.rect.top + 2))
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, image, x, y, speed, kill_coord):
@@ -508,5 +508,5 @@ main()
 ░██░██ ░██░██ ░██     ░██ ░██         ░██  ░██░██ ░██          ░██  ░██         ░██         ░██    ░██ 
 ░████   ░████ ░██     ░██ ░██         ░██   ░████ ░██          ░██  ░██         ░██         ░██   ░██  
 ░███     ░███ ░██     ░██ ░██████████ ░██    ░███ ░██        ░██████░██████████ ░██████████ ░███████                                                              
-560점
+1000점 ㄱㄴ - 개발자가 직접 플레이테스트 완료
 '''
