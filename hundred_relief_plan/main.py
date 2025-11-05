@@ -33,7 +33,7 @@ enemy_missile_cue_img = pygame.transform.scale(enemy_missile_cue_img, (scrnW, 6)
 # effects
 explosion_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 explosion_img = pygame.transform.scale(explosion_img, (128, 128))
-package_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
+package_img = pygame.image.load("hundred_relief_plan/Assets/Textures/pack4.png") 
 package_img = pygame.transform.scale(package_img, (48, 48))
 slcr_effect_img = pygame.image.load("hundred_relief_plan/Assets/Textures/hollow_white_circle.png") 
 slcr_effect_img = pygame.transform.scale(slcr_effect_img, (96, 96))
@@ -416,7 +416,7 @@ def in_game():
         enemy_frame_time += 1
         slcr_time += 1
         enemy_missile_time += 1
-        bg_scroll -= .5 # control background speed here
+        bg_scroll -= 1 # control background speed here
 
         if attention > 0:
             attention -= 0.2
