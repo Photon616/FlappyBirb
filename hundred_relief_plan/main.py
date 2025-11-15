@@ -37,6 +37,8 @@ package_img = pygame.image.load("hundred_relief_plan/Assets/Textures/pack4.png")
 package_img = pygame.transform.scale(package_img, (48, 48))
 slcr_effect_img = pygame.image.load("hundred_relief_plan/Assets/Textures/hollow_white_circle.png") 
 slcr_effect_img = pygame.transform.scale(slcr_effect_img, (96, 96))
+diff_up_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png")
+diff_up_img = pygame.transform.scale(diff_up_img, (64, 64))
 # items
 silencer_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 silencer_img = pygame.transform.scale(silencer_img, (64, 64))
@@ -187,12 +189,12 @@ class Relief_Package(pygame.sprite.Sprite):
         self.x_spd_limit = x_spd_limit
     
     def update(self, fall_speed):
-        self.x_spd += fall_speed 
+        self.x_spd += fall_speed * .7
 
         if self.x_spd > self.x_spd_limit:
             self.x_spd = self.x_spd_limit
 
-        self.y += self.y_spd # adds on y coordinate to go down
+        self.y += self.y_spd * .7 # adds on y coordinate to go down
         self.x -= self.x_spd
 
         self.rect.x = self.x
@@ -214,6 +216,22 @@ class Silencer_Item(pygame.sprite.Sprite):
     def update(self):
         self.rect.x -= self.speed
         if self.rect.right < self.kill_coord:
+            self.kill()
+
+class Fade_Effect(pygame.sprite.Sprite):
+    def __init__(self, image, x, y, speed, xspeed, dur):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect(center = (x, y))
+        self.speed = speed
+        self.dur = dur
+        self.xspeed = xspeed
+
+    def update(self):
+        self.rect.y -= self.speed
+        self.rect.x -= self.xspeed
+        self.dur -= 1
+        if self.dur == 0:
             self.kill()
 
 def start_screen():
@@ -247,6 +265,7 @@ def in_game():
     relief_packages = pygame.sprite.Group()
     silencers = pygame.sprite.Group()
     enemy_missiles = pygame.sprite.Group()
+    indicators = pygame.sprite.Group()
     fall_speed = 0.3
     jump_speed = 8.0 
 
@@ -257,6 +276,7 @@ def in_game():
  
     # attention
     attention = 0
+    bar_color_dur = 0
 
     # enemy
     enemy_duration = 4 # in sec. division will be done after
@@ -376,6 +396,7 @@ def in_game():
         relief_packages.update(0.2)
         silencers.update()
         enemy_missiles.update()
+        indicators.update()
         for target_enemy in enemies:
             if target_enemy.is_over:
                 return "gameover"
@@ -385,6 +406,7 @@ def in_game():
             i.render(enemy_frame)
         enemy_missiles.draw(screen)
         relief_packages.draw(screen)
+        indicators.draw(screen)
         pl.draw(pl_frame) # blit rimg on the screen
         for i in effects:
             i.render()
@@ -398,7 +420,12 @@ def in_game():
         # bar_bg = pygame.Surface((scrnW, 16))
         # bar_bg.fill((0, 255, 0))
         # bar_bg.blit(screen, (120, 0))
-        pygame.draw.rect(screen, (255, 255, 255), ((0 - scrnW) + (attention * (scrnW / 300)), 0, scrnW, 32))  
+        attention_bar_color = (0, 0, 0)
+        if silenced:
+            attention_bar_color = (0, 40, 255)
+        else:
+            attention_bar_color = (255, 255 - (15 * bar_color_dur), 255 - (15 * bar_color_dur))
+        pygame.draw.rect(screen, attention_bar_color, ((0 - scrnW) + (attention * (scrnW / 300)), 0, scrnW, 32))  
         if weapon_time >= weapon_duration * 60:
             weapon_bar_x = weapon_duration * 60
         else:
@@ -421,6 +448,9 @@ def in_game():
         if attention > 0:
             attention -= 0.2
         
+        if bar_color_dur:
+            bar_color_dur -= 1
+        
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
@@ -428,11 +458,13 @@ def in_game():
                 if event.key == pygame.K_f and weapon_time / 60 >= weapon_duration:
                     # print("bullet shot")
                     bullets.add(Bullet(bullet_img, pl.x, pl.rect.center[1] - 5, bullet_speed, scrnW))
+                    #indicators.add(Fade_Effect(diff_up_img, pl.rect.centerx, pl.rect.centery - 48, .3, 5, 40))
                     if not silenced:
                         if enemy_duration - ((attention + 60) / 100) < 1:
                             attention = 300
                         else:
                             attention += 60 # adds 0.3 to attention, speeding up enemy spawns
+                        bar_color_dur = 17
                     else:
                         silenced = False  
                     weapon_time = 0
