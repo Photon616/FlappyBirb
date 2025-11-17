@@ -35,8 +35,8 @@ explosion_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker
 explosion_img = pygame.transform.scale(explosion_img, (128, 128))
 package_img = pygame.image.load("hundred_relief_plan/Assets/Textures/pack4.png") 
 package_img = pygame.transform.scale(package_img, (48, 48))
-slcr_effect_img = pygame.image.load("hundred_relief_plan/Assets/Textures/hollow_white_circle.png") 
-slcr_effect_img = pygame.transform.scale(slcr_effect_img, (96, 96))
+slcr_effect_img = pygame.image.load("hundred_relief_plan/Assets/Textures/blueglow2.png") 
+slcr_effect_img = pygame.transform.scale(slcr_effect_img, (scrnW, 32))
 diff_up_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png")
 diff_up_img = pygame.transform.scale(diff_up_img, (64, 64))
 # items
@@ -414,7 +414,7 @@ def in_game():
 
         # draw silenced effect
         if silenced:
-            screen.blit(slcr_effect_img, (pl.rect.centerx - 48, pl.rect.centery - 48))
+            screen.blit(slcr_effect_img, (0, 32-4))
 
         # attention bar
         # bar_bg = pygame.Surface((scrnW, 16))
