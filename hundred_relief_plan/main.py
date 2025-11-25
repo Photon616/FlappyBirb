@@ -22,14 +22,14 @@ score = 0
 # if errors are occuring, try removing hundred_relief_plan from the directory.
 # enemy_img = pygame.image.load("hundred_relief_plan/Assets/Textures/monotoneChecker1k.png") 
 # enemy_img = pygame.transform.scale(enemy_img, (64, 48))
-enemy_missile_img = pygame.image.load("hundred_relief_plan/Assets/Textures/kabosu_highres.jpg") 
+enemy_missile_img = pygame.image.load("hundred_relief_plan/Assets/Textures/enemy_missile.png") 
 enemy_missile_img = pygame.transform.scale(enemy_missile_img, (50, 10))
 bullet_img = pygame.image.load("hundred_relief_plan/Assets/Textures/missile.png") 
 bullet_img = pygame.transform.scale(bullet_img, (50, 10))
 enemy_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/gradient3.png")
 enemy_cue_img = pygame.transform.scale(enemy_cue_img, (48, scrnH))
 enemy_missile_cue_img = pygame.image.load("hundred_relief_plan/Assets/Textures/gradient4.png") 
-enemy_missile_cue_img = pygame.transform.scale(enemy_missile_cue_img, (scrnW, 6))
+enemy_missile_cue_img = pygame.transform.scale(enemy_missile_cue_img, (scrnW, 2))
 # effects
 explosion_img = pygame.image.load("hundred_relief_plan/Assets/Textures/uvChecker1k.png") 
 explosion_img = pygame.transform.scale(explosion_img, (128, 128))
@@ -142,7 +142,7 @@ class Missile_Obstacle(pygame.sprite.Sprite):
         if self.rect.right < self.kill_coord:
             self.kill()
         
-        screen.blit(self.cue_img, (0, self.rect.top + 2))
+        screen.blit(self.cue_img, (0, self.rect.top + 4))
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, image, x, y, speed, kill_coord):
