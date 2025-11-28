@@ -2,6 +2,7 @@ import random
 import time
 import pygame
 from pygame.locals import *
+import pygame._sdl2 as pg_sdl2 # experimental
 
 pygame.init()
 pygame.mixer.init()
@@ -9,8 +10,14 @@ pygame.mixer.init()
 scrnW = 640 # the width of the game window(pixels)
 scrnH = 480 # the height of the game window(pixels)
 
-screen = pygame.display.set_mode((scrnW, scrnH))
+# screen = pygame.display.set_mode((scrnW, scrnH))
+screen = pygame.display.set_mode((scrnW, scrnH), flags=pygame.SCALED | pygame.HIDDEN) #experimental
 pygame.display.set_caption("operation")
+
+window = pg_sdl2.Window.from_display_module() #experimental
+window.size = (scrnW * 2, scrnH * 2) #experimental
+window.position = pg_sdl2.WINDOWPOS_CENTERED #experimental
+window.show() #experimental
 
 clock = pygame.time.Clock()
 pretendard_black = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Black.ttf", 64)
