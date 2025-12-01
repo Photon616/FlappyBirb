@@ -22,6 +22,8 @@ window.show() #experimental
 clock = pygame.time.Clock()
 pretendard_black = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Black.ttf", 64)
 pretendard = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Pretendard-Regular.ttf", 32)
+jersey10 = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Jersey10-Regular.ttf", 64)
+tiny5 = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Tiny5-Regular.ttf", 32)
 
 score = 0
 
@@ -262,6 +264,8 @@ def start_screen():
 def in_game():
     global pretendard
     global pretendard_black
+    global tiny5
+    global jersey10
 
     # universal
     running = True
@@ -369,7 +373,7 @@ def in_game():
             silenced = True
             col_obj.kill()
         
-        score_text = pretendard_black.render(str(int(score)), True, (255, 255, 255))
+        score_text = jersey10.render(str(int(score)), True, (255, 255, 255))
         score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2))
 
         # keys = pygame.key.get_pressed()
