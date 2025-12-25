@@ -52,7 +52,7 @@ diff_up_img = pygame.transform.scale(diff_up_img, (64, 64))
 silencer_img = pygame.image.load("hundred_relief_plan/Assets/Textures/freeze_item.png") 
 silencer_img = pygame.transform.scale(silencer_img, (64, 64)) 
 # bg
-start_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_640x480.png")
+start_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/start.png")
 ingame_background = pygame.image.load("hundred_relief_plan/Assets/Textures/bg.png")
 gameover_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_800x600.png")
 
