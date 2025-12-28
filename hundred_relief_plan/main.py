@@ -6,6 +6,11 @@ import pygame._sdl2 as pg_sdl2 # experimental
 
 pygame.init()
 pygame.mixer.init()
+pygame.mixer.music.load("hundred_relief_plan/Assets/Audios/bgm_cropped.wav")
+pygame.mixer.music.set_volume(0.7)
+
+gameover_sound = pygame.mixer.Sound("hundred_relief_plan/Assets/Audios/death_glitch.wav")
+gameover_sound.set_volume(0.2) 
 
 scrnW = 640 # the width of the game window(pixels)
 scrnH = 480 # the height of the game window(pixels)
@@ -26,6 +31,9 @@ jersey10 = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Jersey10-Regular.t
 tiny5 = pygame.font.Font("hundred_relief_plan/Assets/Fonts/Tiny5-Regular.ttf", 32)
 
 score = 0
+
+# load audios here
+#bgm = 
 
 # load images here
 # if errors are occuring, try removing hundred_relief_plan from the directory.
@@ -54,7 +62,9 @@ silencer_img = pygame.transform.scale(silencer_img, (64, 64))
 # bg
 start_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/start.png")
 ingame_background = pygame.image.load("hundred_relief_plan/Assets/Textures/bg.png")
-gameover_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/placeholder_800x600.png")
+gameover_screen_background = pygame.image.load("hundred_relief_plan/Assets/Textures/gameoverscreen.png")
+tutorial1_background = pygame.image.load("hundred_relief_plan/Assets/Textures/tutorial1.png")
+tutorial2_background = pygame.image.load("hundred_relief_plan/Assets/Textures/tutorial2.png")
 
 # load player sprites
 player_sprites = []
@@ -250,6 +260,44 @@ def start_screen():
         clock.tick(60)
         #screen.fill((0, 0, 0)) # draw background
         screen.blit(start_screen_background, (0, 0))
+        
+        pygame.display.update() # update the screen
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return "t1"
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+
+def tutorial1():
+    running = True
+    # print("t1")
+    
+    while running:
+        clock.tick(60)
+        #screen.fill((0, 0, 0)) # draw background
+        screen.blit(tutorial1_background, (0, 0))
+        
+        pygame.display.update() # update the screen
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return "t2"
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+
+def tutorial2():
+    running = True
+    # print("t2")
+    
+    while running:
+        clock.tick(60)
+        #screen.fill((0, 0, 0)) # draw background
+        screen.blit(tutorial2_background, (0, 0))
         
         pygame.display.update() # update the screen
 
@@ -498,14 +546,16 @@ def game_over_screen():
     # for continue timer
     cntn_time = 0
     cntn_duration = 1
+    
+    gameover_sound.play()
 
     while running:
         clock.tick(60)
-        screen.fill((0, 0, 0)) # draw background
-        # screen.blit(gameover_screen_background, (0, 0))
-        
-        score_text = pretendard_black.render(f"{str(int(score))}", True, (255, 255, 255))
-        score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2 - 100))
+        # screen.fill((0, 0, 0)) # draw background
+        screen.blit(gameover_screen_background, (0, 0))
+
+        score_text = pretendard_black.render(f"{str(int(score))}점", True, (255, 255, 255))
+        score_text_rect = score_text.get_rect(center=(scrnW / 2, scrnH / 2))
         screen.blit(score_text, score_text_rect)
         
         cntn_text = pretendard_black.render(f"SPACE로 복귀", True, (255, 255, 255))
@@ -535,21 +585,29 @@ def main():
             state = in_game()
         elif state == "gameover":
             state = game_over_screen()
+        elif state == "t1":
+            state = tutorial1()
+        elif state == "t2":
+            state = tutorial2()
         else:
             break
 
     pygame.quit()
     return
 
+# 음악 재생 (이미 mixer.init()이 한 번 되어 있다고 가정)
+pygame.mixer.music.play(-1)  # 반복 재생
+
 main()
 
 '''
-░██       ░██ ░██     ░██ ░██████████ ░███    ░██ ░██████████░██████░██████████ ░██         ░███████   
-░██       ░██ ░██     ░██ ░██         ░████   ░██ ░██          ░██  ░██         ░██         ░██   ░██  
-░██  ░██  ░██ ░██     ░██ ░██         ░██░██  ░██ ░██          ░██  ░██         ░██         ░██    ░██ 
-░██ ░████ ░██ ░██████████ ░█████████  ░██ ░██ ░██ ░█████████   ░██  ░█████████  ░██         ░██    ░██ 
-░██░██ ░██░██ ░██     ░██ ░██         ░██  ░██░██ ░██          ░██  ░██         ░██         ░██    ░██ 
-░████   ░████ ░██     ░██ ░██         ░██   ░████ ░██          ░██  ░██         ░██         ░██   ░██  
-░███     ░███ ░██     ░██ ░██████████ ░██    ░███ ░██        ░██████░██████████ ░██████████ ░███████                                                              
+  ░██████     ░██████     ░██████   ░███    ░██ ░██████████░██████░██████████ ░██         ░███████   
+ ░██   ░██   ░██   ░██   ░██   ░██  ░████   ░██ ░██          ░██  ░██         ░██         ░██   ░██  
+░██         ░██     ░██ ░██     ░██ ░██░██  ░██ ░██          ░██  ░██         ░██         ░██    ░██ 
+ ░████████  ░██     ░██ ░██     ░██ ░██ ░██ ░██ ░█████████   ░██  ░█████████  ░██         ░██    ░██ 
+        ░██ ░██     ░██ ░██     ░██ ░██  ░██░██ ░██          ░██  ░██         ░██         ░██    ░██ 
+ ░██   ░██   ░██   ░██   ░██   ░██  ░██   ░████ ░██          ░██  ░██         ░██         ░██   ░██  
+  ░██████     ░██████     ░██████   ░██    ░███ ░██        ░██████░██████████ ░██████████ ░███████   
+                                                                                                                                                                                                                                     
 1000점 ㄱㄴ - 개발자가 직접 플레이테스트 완료
 '''
